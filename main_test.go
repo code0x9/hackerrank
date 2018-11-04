@@ -7,36 +7,45 @@ import (
 )
 
 func Test(t *testing.T) {
-	assert.Equal(t, int64(200),
-		arrayManipulation(5, [][]int32{
-			{1, 2, 100},
-			{2, 5, 100},
-			{3, 4, 100},
-		}))
-	assert.Equal(t, int64(10),
-		arrayManipulation(10, [][]int32{
-			{1, 5, 3},
-			{4, 8, 7},
-			{6, 9, 1},
-		}))
+	assert.Equal(t, int32(0), sherlockAndAnagrams("abcd"))
+	assert.Equal(t, int32(4), sherlockAndAnagrams("abba"))
+	assert.Equal(t, int32(3), sherlockAndAnagrams("ifailuhkqq"))
+	assert.Equal(t, int32(10), sherlockAndAnagrams("kkkk"))
 }
 
-// use "stateful" x value
-func arrayManipulation(n int32, queries [][]int32) int64 {
-	r := make([]int, n)
-	for _, query := range queries {
-		a, b, k := int(query[0])-1, int(query[1])-1, int(query[2])
-		r[a] += k
-		if b+1 < int(n) {
-			r[b+1] -= k
+func sherlockAndAnagrams(s string) int32 {
+	toMap := func(s string) map[rune]int {
+		m := map[rune]int{}
+		for _, r := range s {
+			m[r]++
+		}
+		return m
+	}
+
+	isEqual := func(m1, m2 map[rune]int) bool {
+		for k, v := range m1 {
+			m2[k] -= v
+			if m2[k] == 0 {
+				delete(m2, k)
+			}
+		}
+		return len(m2) == 0
+	}
+
+	var c int32
+	// i is part length
+	for i := 1; i < len(s)+1; i++ {
+		// j is part 1 idx
+		for j := 0; j < len(s)-i; j++ {
+			p1 := toMap(s[j : j+i])
+			// k is part 2 idx
+			for k := j + 1; k < len(s)-i+1; k++ {
+				p2 := toMap(s[k : k+i])
+				if isEqual(p1, p2) {
+					c++
+				}
+			}
 		}
 	}
-	max, x := -1, 0
-	for _, v := range r {
-		x += v
-		if max < x {
-			max = x
-		}
-	}
-	return int64(max)
+	return c
 }
