@@ -23,13 +23,15 @@ func sherlockAndAnagrams(s string) int32 {
 	}
 
 	isEqual := func(m1, m2 map[rune]int) bool {
+		if len(m1) != len(m2) {
+			return false
+		}
 		for k, v := range m1 {
-			m2[k] -= v
-			if m2[k] == 0 {
-				delete(m2, k)
+			if m2[k] != v {
+				return false
 			}
 		}
-		return len(m2) == 0
+		return true
 	}
 
 	var c int32
