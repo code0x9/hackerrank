@@ -7,47 +7,54 @@ import (
 )
 
 func Test(t *testing.T) {
-	assert.Equal(t, int32(0), sherlockAndAnagrams("abcd"))
-	assert.Equal(t, int32(4), sherlockAndAnagrams("abba"))
-	assert.Equal(t, int32(3), sherlockAndAnagrams("ifailuhkqq"))
-	assert.Equal(t, int32(10), sherlockAndAnagrams("kkkk"))
+	//assert.Equal(t, int64(2), countTriplets([]int64{1, 2, 2, 4}, 2))
+	//assert.Equal(t, int64(3), countTriplets([]int64{1, 2, 2, 2, 4}, 2))
+	//assert.Equal(t, int64(4), countTriplets([]int64{1, 2, 2, 4, 4}, 2))
+	//assert.Equal(t, int64(6), countTriplets([]int64{1, 3, 9, 9, 27, 81}, 3))
+	//assert.Equal(t, int64(4), countTriplets([]int64{1, 5, 5, 25, 125}, 5))
+	assert.Equal(t, int64(1), countTriplets([]int64{1, 1, 1}, 1))
+	//assert.Equal(t, int64(161700), countTriplets([]int64{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, 1))
 }
 
-func sherlockAndAnagrams(s string) int32 {
-	toMap := func(s string) map[rune]int {
-		m := map[rune]int{}
-		for _, r := range s {
-			m[r]++
-		}
-		return m
+func BenchmarkTest(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		countTriplets([]int64{1, 3, 9, 9, 27, 81}, 3)
 	}
+}
 
-	isEqual := func(m1, m2 map[rune]int) bool {
-		if len(m1) != len(m2) {
-			return false
-		}
-		for k, v := range m1 {
-			if m2[k] != v {
-				return false
-			}
-		}
-		return true
+func countTriplets(arr []int64, r int64) int64 {
+	if len(arr) < 3 {
+		return int64(0)
 	}
+	am := make(map[int64]int)
+	am[arr[0]] = 1
 
-	var c int32
-	// i is part length
-	for i := 1; i < len(s)+1; i++ {
-		// j is part 1 idx
-		for j := 0; j < len(s)-i; j++ {
-			p1 := toMap(s[j : j+i])
-			// k is part 2 idx
-			for k := j + 1; k < len(s)-i+1; k++ {
-				p2 := toMap(s[k : k+i])
-				if isEqual(p1, p2) {
-					c++
-				}
-			}
+	for ai := 1; ai < len(arr); ai++ {
+		am[arr[ai]]++
+	}
+	result := int64(1)
+	for b := arr[0]; ; b *= r {
+		if _, ok := am[b]; !ok {
+			break
+		}
+		result *= int64(am[b])
+	}
+	return result
+}
+
+func countTripletsBad(arr []int64, r int64) int64 {
+	if len(arr) < 3 {
+		return int64(0)
+	}
+	am := make(map[int64]int)
+	am[arr[0]] = 1
+	base := int64(1)
+
+	for ai := 1; ai < len(arr); ai++ {
+		am[arr[ai]]++
+		if arr[ai-1] != arr[ai] {
+			base *= int64(am[arr[ai-1]])
 		}
 	}
-	return c
+	return int64(base * int64(len(am)-2))
 }
